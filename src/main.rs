@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .data(Arc::clone(&data))
+            .app_data(web::Data::new(Arc::clone(&data))) // Use .app_data instead of .data
             .app_data(web::JsonConfig::default().limit(4096)) // limit size of the payload (optional)
             .route("/predict", web::post().to(make_prediction))
             .route("/health_check", web::get().to(health_check))
