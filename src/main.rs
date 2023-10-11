@@ -1,4 +1,5 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Result};
+use actix_web::{web, App, HttpResponse, HttpServer, Result, middleware};
+use env_logger::Env;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, Map};
 use std::error::Error;
@@ -53,17 +54,21 @@ async fn health_check() -> Result<HttpResponse> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv::dotenv().ok();
+    env_logger::from_env(Env::default().default_filter_or("warn")).init();
+
     let hash_map = JsonParser::read_json("predic.json").unwrap();
     let data = Arc::new(RwLock::new(hash_map));
 
     HttpServer::new(move || {
         App::new()
+            .wrap(middleware::Logger::default())
             .app_data(web::Data::new(Arc::clone(&data))) // Use .app_data instead of .data
             .app_data(web::JsonConfig::default().limit(4096)) // limit size of the payload (optional)
             .route("/predict", web::post().to(make_prediction))
             .route("/health_check", web::get().to(health_check))
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
 }
