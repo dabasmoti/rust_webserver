@@ -1,15 +1,15 @@
-###To reproduce the results run
-####unoptimized version 
+To reproduce the results run
+Unoptimized version 
 ```
 cargo run
 ```
 
-###Optimized version 
+Optimized version 
 ```
 cargo run --release
 ```
 
-###Make post request
+Make post request
 ```
 curl -X POST 0.0.0.0:8080/predict \
      -H 'Content-Type: application/json' \
